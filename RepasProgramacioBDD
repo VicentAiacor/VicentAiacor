@@ -1,0 +1,91 @@
+package mayo;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class bdd {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		bdd pro = new bdd();
+		pro.inici();
+	}
+
+	private void inici() {
+		// TODO Auto-generated method stub
+		try {
+			// Me conecte
+			Class.forName("org.mariadb.jdbc.Driver");
+			String urlBaseDades = "jdbc:mariadb://localhost:3306/";
+			String usuari = "root";
+			String contrasenya = "";
+			Connection c = DriverManager.getConnection(urlBaseDades, usuari, contrasenya);
+			System.out.println("Te has conectat a la base de dades!");
+
+			// Cree la meua base de datos
+			Statement s = c.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+			String sentencia = "CREATE DATABASE IF NOT EXISTS provesBDD";
+			int res = s.executeUpdate(sentencia);
+			System.out.println("S'ha creat la base de dades");
+
+			// Insertar tables
+			urlBaseDades = "jdbc:mariadb://localhost:3306/provesBDD";
+			c = DriverManager.getConnection(urlBaseDades, usuari, contrasenya);
+			Statement insert = c.createStatement();
+			String queryInsert = "CREATE TABLE IF NOT EXISTS amics(id INT PRIMARY KEY AUTO_INCREMENT, nom VARCHAR(50) NOT NULL, poblacio VARCHAR(50) NOT NULL)";
+			insert.executeUpdate(queryInsert);
+			System.out.println("Tabla creada");
+
+			// Afegir dades
+
+//			String queryAfegir = "INSERT INTO amics(nom,poblacio) VALUES (?, ?)";
+//			PreparedStatement ps = c.prepareStatement(queryAfegir);
+//			ps.setString(1, "Vicent");
+//			ps.setString(2, "Quatretonda");
+//			ps.executeUpdate();
+//			System.out.println("S'ha afegit dades a la tabla amics");
+
+			// Eliminar de la base de dades
+//			String queryDelete = "DELETE FROM amics WHERE id = 2";
+//			PreparedStatement ps = c.prepareStatement(queryDelete);
+//			ps.executeUpdate();
+//			System.out.println("S'ha afegit dades a la tabla amics");
+
+			// Modificar dades
+			Statement sMody = c.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+			String queryMody = "SELECT id, nom FROM amics WHERE nom = 'Vicent'";
+			ResultSet resMody = sMody.executeQuery(queryMody);
+
+			while (resMody.next()) {
+				// Obtenemos el id y el nombre de cada fila
+				int id = resMody.getInt("id");
+				String nom = resMody.getString("nom");
+
+				// Actualizamos el nombre a "Alba"
+				resMody.updateString("nom", "Rosa");
+
+				// Aplicamos la actualización en la fila actual
+				resMody.updateRow();
+			}
+
+			// Mostrar
+			Statement sMostrar = c.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+			String queryMostrar = "SELECT * FROM amics";
+			ResultSet resMostrar = sMostrar.executeQuery(queryMostrar);
+
+			while (resMostrar.next()) {
+				System.out.println("ID-> " + resMostrar.getInt("id") + " NOM-> " + resMostrar.getString("nom"));
+			}
+
+		} catch (ClassNotFoundException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+}
